@@ -124,3 +124,17 @@ data/                   Caché, modelos y CSV (generados)
 figuras/                Curva, eigenfaces, mapas y confusiones
 docs/                   Presentación Beamer (solo copia local)
 ```
+
+## Trabajo completado (LAB02)
+
+- `src/embeddings/fisherfaces.py`: `ExtractorFisherfaces` ajusta `ExtractorPCA(d_pca)` con `X_train` y luego `ExtractorLDA(d_lda)` sobre ese PCA con `y_train`. `transform` aplica ambas proyecciones sin reajustar. Valida `d_lda <= min(C-1, d_pca)` y `d_pca <= min(N_train, p)`.
+- `src/datos/lfw.py`: `CargadorLFW.cargar` usa `fetch_lfw_people(min_faces_per_person=20, resize=0.5)`, conserva las 50 identidades más frecuentes (empates ordenados por nombre), reindexa `y`, guarda los nombres y lee alto y ancho desde `images.shape`.
+- `src/pipeline.py`: imprime N, C, H y W; genera mapas t-SNE/UMAP también para Fisherfaces y la figura `figuras/fisherfaces_<dataset>.png`.
+- `app.py` y `src/interfaz/servicio.py`: Fisherfaces habilitado en la interfaz.
+- `notebooks/analisis_resultados.ipynb`: análisis de resultados (tablas, calidad vs costo, errores, mapas y validación interna de `d_PCA`). Requiere ejecutar antes `python main.py experimentos`.
+
+## Prototipo publicado
+
+La interfaz está publicada en Streamlit Community Cloud: <https://ml-lab02.streamlit.app>
+
+El despliegue usa `deploy/streamlit_app.py`, que ejecuta el mismo `app.py` de la raíz, y `deploy/requirements.txt`, con los seis paquetes que necesita la interfaz en las mismas versiones del entorno conda. Streamlit Cloud no logra instalar el `environment.yml` con conda (la resolución no termina en su máquina gratuita), así que ese `requirements.txt` existe solo para la nube. Para trabajar en local se sigue usando conda.

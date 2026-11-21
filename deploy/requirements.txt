@@ -1,0 +1,9 @@
+# Solo para Streamlit Community Cloud (deploy/streamlit_app.py).
+# El entorno oficial del laboratorio es environment.yml (conda).
+# Mismas versiones que el entorno conda; solo los paquetes que usa la interfaz.
+streamlit==1.67.0
+numpy==2.4.6
+pandas==3.1.1
+scikit-learn==1.9.1
+joblib==1.6.0
+python-dotenv==1.2.4

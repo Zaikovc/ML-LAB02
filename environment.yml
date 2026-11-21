@@ -12,3 +12,6 @@ dependencies:
   - python-dotenv=1.2.4
   - umap-learn=0.6.0
   - joblib=1.6.0
+  # Notebook de análisis (VS Code o jupyter nbconvert)
+  - ipykernel=7.4
+  - nbconvert=7.17
