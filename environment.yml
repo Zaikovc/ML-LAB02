@@ -4,14 +4,11 @@ channels:
   - nodefaults
 dependencies:
   - python=3.11
-  - numpy=2.4
-  - pandas=3.1
-  - matplotlib=3.11
-  - scikit-learn=1.9
-  - streamlit=1.67
-  - python-dotenv=1.2
-  - umap-learn=0.6
-  - joblib=1.6
-  # Notebook de análisis de resultados (abrir con VS Code o ejecutar con nbconvert)
-  - ipykernel=7.4
-  - nbconvert=7.17
+  - numpy=2.4.6
+  - pandas=3.1.1
+  - matplotlib-base=3.11.2
+  - scikit-learn=1.9.1
+  - streamlit=1.67.0
+  - python-dotenv=1.2.4
+  - umap-learn=0.6.0
+  - joblib=1.6.0
