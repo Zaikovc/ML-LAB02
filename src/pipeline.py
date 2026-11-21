@@ -1,7 +1,6 @@
 """Orquestación OOP del laboratorio.
 
-Etapas implementadas: Olivetti con PCA y LDA, tres clasificadores y figuras.
-Etapas pendientes del alumno: Fisherfaces y el experimento LFW.
+Olivetti y LFW con PCA, LDA y Fisherfaces, tres clasificadores y figuras.
 """
 
 from __future__ import annotations
@@ -26,6 +25,7 @@ from src.datos.lfw import CargadorLFW
 from src.datos.olivetti import CargadorOlivetti
 from src.embeddings.base import ExtractorEmbedding
 from src.embeddings.fabrica import FabricaExtractores
+from src.embeddings.fisherfaces import ExtractorFisherfaces
 from src.embeddings.pca import ExtractorPCA
 from src.evaluacion.metricas import Evaluador
 from src.evaluacion.visualizacion import Visualizador
@@ -74,11 +74,13 @@ class PipelineExperimentos:
             f"X {tuple(conjunto.X.shape)}  "
             f"train {tuple(particion.X_train.shape)}  "
             f"test {tuple(particion.X_test.shape)}  "
-            f"identidades {conjunto.n_clases}"
+            f"N={conjunto.X.shape[0]}  C={conjunto.n_clases}  "
+            f"H={conjunto.alto}  W={conjunto.ancho}"
         )
         resultados: list[ResultadoExperimento] = []
         proyecciones_mapa: dict[tuple[str, int], tuple] = {}
         fisher_omitido = False
+        fisher_figura: ExtractorFisherfaces | None = None
 
         for extractor in self.fabrica_extractores.para_experimento(conjunto.n_clases):
             if fisher_omitido and extractor.nombre == "fisherfaces":
@@ -91,16 +93,19 @@ class PipelineExperimentos:
                     fisher_omitido = True
                 continue
 
-            if extractor.dimension == DIMENSION_MAPAS and extractor.nombre in {"pca", "lda"}:
+            if extractor.dimension == DIMENSION_MAPAS:
                 proyecciones_mapa[(extractor.nombre, extractor.dimension)] = (
                     Z_train,
                     particion.y_train,
                 )
+                if isinstance(extractor, ExtractorFisherfaces):
+                    fisher_figura = extractor
             resultados.extend(
                 self._evaluar_clasificadores(conjunto, extractor, particion, Z_train, Z_test)
             )
 
         self._figuras_pca(conjunto, particion)
+        self._figura_fisherfaces(conjunto, fisher_figura)
         self._mapas(conjunto.nombre, proyecciones_mapa)
         self._guardar_csv(resultados, conjunto.nombre)
         self._imprimir(resultados)
@@ -192,6 +197,20 @@ class PipelineExperimentos:
             referencia.componentes_imagen(conjunto.alto, conjunto.ancho),
             conjunto.nombre,
         )
+
+    def _figura_fisherfaces(
+        self,
+        conjunto: ConjuntoRostros,
+        extractor: ExtractorFisherfaces | None,
+    ) -> None:
+        if extractor is None or not extractor.ajustado:
+            return
+        ruta = self.visualizador.fisherfaces(
+            extractor.componentes_imagen(conjunto.alto, conjunto.ancho),
+            conjunto.nombre,
+            extractor.d_pca,
+        )
+        print(f"  figura {ruta.name}")
 
     def _mapas(self, dataset: str, proyecciones: dict) -> None:
         for (embedding, d), (Z_train, y_train) in proyecciones.items():

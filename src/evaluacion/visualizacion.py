@@ -77,6 +77,39 @@ class Visualizador:
         fig.tight_layout()
         return self._guardar(fig, f"eigenfaces_{dataset}.png")
 
+    def fisherfaces(
+        self,
+        componentes: np.ndarray,
+        dataset: str,
+        d_pca: int,
+        cantidad: int = 8,
+    ) -> Path:
+        """Direcciones discriminantes vistas como imagen, en rojo y azul.
+
+        Cada patrón se divide por su máximo absoluto: los colores indican el signo
+        relativo del peso, no el tono de la piel.
+        """
+        cantidad = min(cantidad, componentes.shape[0])
+        columnas = 4
+        filas = int(np.ceil(cantidad / columnas))
+        fig, ejes = plt.subplots(
+            filas, columnas, figsize=(8.4, 2.2 * filas + 0.6), constrained_layout=True
+        )
+        celdas = list(np.atleast_1d(ejes).ravel())
+        dibujo = None
+        for i in range(cantidad):
+            patron = componentes[i]
+            escala = np.abs(patron).max() or 1.0
+            dibujo = celdas[i].imshow(patron / escala, cmap="RdBu_r", vmin=-1, vmax=1)
+            celdas[i].set_title(f"Fisherface {i + 1}", fontsize=8)
+            celdas[i].axis("off")
+        for ax in celdas[cantidad:]:
+            ax.axis("off")
+        if dibujo is not None:
+            fig.colorbar(dibujo, ax=celdas, shrink=0.8, label="Peso relativo del píxel")
+        fig.suptitle(f"Fisherfaces · {dataset} · PCA({d_pca}) → LDA", fontsize=12)
+        return self._guardar(fig, f"fisherfaces_{dataset}.png")
+
     def confusion(
         self,
         matriz: np.ndarray,
